@@ -1,5 +1,7 @@
 package e.rusakov.sort;
 
+import java.util.NoSuchElementException;
+
 /**
  * Реализация списка на основе связанного списка
  *
@@ -32,25 +34,21 @@ public class MyLinkedList<E extends Comparable<E>> implements MyList<E> {
     /**
      * Вставляет указанный элемент в указанную позицию в списке.
      *
-     * @param e - элемент, который должен быть добавлен в этот список
+     * @param e     - элемент, который должен быть добавлен в этот список
      * @param index - порядковый номер элемента, куда нужно добавить
      */
     @Override
     public void add(E e, int index) {
+        indexException(index);
         Node<E> newNode = new Node<>(e);
-        if (index < 0 || index >= size) {
-            throw new IndexOutOfBoundsException("Not index: " + index);
+        int i = 0;
+        Node<E> headNew = head;
+        while (i < index) {
+            headNew = headNew.next;
+            i++;
         }
-        else {
-            int i = 0;
-            Node<E> headNew = head;
-            while (i < index) {
-                headNew = headNew.next;
-                i++;
-            }
-            newNode.next = headNew.next;
-            headNew.next = newNode;
-        }
+        newNode.next = headNew.next;
+        headNew.next = newNode;
         size++;
     }
 
@@ -62,14 +60,37 @@ public class MyLinkedList<E extends Comparable<E>> implements MyList<E> {
      */
     @Override
     public E get(int index) {
-    if (index < 0 || index > size) {
-        throw new IndexOutOfBoundsException("Not index: " + index);
-    }   Node<E> node = head.next;
-        while(index > 0) {
+        indexException(index);
+        Node<E> node = head.next;
+        while (index >= 0) {
             node = node.next;
             index--;
         }
         return node.value;
+    }
+
+    /**
+     * Возвращает первый элемент в списке.
+     *
+     * @return первый элемент в списке
+     */
+    public E getFirst() {
+        Node<E> h = head;
+        if (h == null)
+            throw new NoSuchElementException();
+        return h.value;
+    }
+
+    /**
+     * Возвращает последний элемент в списке.
+     *
+     * @return последний элемент в списке
+     */
+    public E getLast() {
+        Node<E> t = tail;
+        if (t == null)
+            throw new NoSuchElementException();
+        return t.value;
     }
 
     /**
@@ -79,21 +100,19 @@ public class MyLinkedList<E extends Comparable<E>> implements MyList<E> {
      */
     @Override
     public void delete(int index) {
-        if (index < 0 || index >= size) {
-            throw new IndexOutOfBoundsException("Not index: " + index);
-        }
+        indexException(index);
         if (index == 0) {
             head = head.next;
             if (head == null) tail = null;
-        }
-        else {
+        } else {
             Node<E> node = head;
             for (int i = 0; i < index; i++) {
                 node = node.next;
             }
             node.next = node.next.next;
             if (node.next == null) tail = node;
-        } size--;
+        }
+        size--;
     }
 
     /**
@@ -101,6 +120,15 @@ public class MyLinkedList<E extends Comparable<E>> implements MyList<E> {
      */
     @Override
     public void clear() {
+        if (head != null) {
+            Node<E> current = head;
+            while (current != null) {
+                Node<E> next = current.next;
+                current.value = null;
+                current.next = null;
+                current = next;
+            }
+        }
         head = null;
         tail = null;
         size = 0;
@@ -150,14 +178,25 @@ public class MyLinkedList<E extends Comparable<E>> implements MyList<E> {
      */
     @Override
     public String toString() {
-
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("MyLinkedList: [");
         Node<E> node = head;
         while (node != null) {
             sb.append(node.value).append(" ");
             node = node.next;
         }
-        return "MyLinkedList: [" + sb + "]";
+        sb.append("]");
+        return sb.toString();
+    }
+
+    /**
+     * Вспомогательный метод, который создаёт Exception, если индекс не соответствует.
+     *
+     * @param index - порядковый номер элемента
+     */
+    private void indexException(int index) {
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException("Not index: " + index);
+        }
     }
 
     /**

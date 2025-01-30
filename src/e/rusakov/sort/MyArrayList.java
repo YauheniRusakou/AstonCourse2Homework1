@@ -9,7 +9,6 @@ public class MyArrayList<E extends Comparable<E>> implements MyList<E> {
 
     private final int SIZE_START = 8; //начальная ёмкость по умолчанию
     private Object[] array; //массив для элементов
-    private int count; //создаваемые элементы
     private int size; //количество элементов, которые содержит список
 
     /**
@@ -25,6 +24,9 @@ public class MyArrayList<E extends Comparable<E>> implements MyList<E> {
      * @param size - ночальная ёмкость списка
      */
     public MyArrayList(int size) {
+        if (size < 0) {
+            throw new IndexOutOfBoundsException("Size is negative: " + size);
+        }
         this.size = size;
         array = new Object[size];
     }
@@ -35,30 +37,26 @@ public class MyArrayList<E extends Comparable<E>> implements MyList<E> {
      * @param e - элемент, который должен быть добавлен в этот список
      */
     @Override
-    public void add(E e){
-        if (size == array.length){
+    public void add(E e) {
+        if (size == array.length) {
             resizeArray(size + 1);
         }
-        array[count++] = e;
+        array[size++] = e;
     }
 
     /**
      * Вставляет указанный элемент в указанную позицию в списке.
      *
-     * @param e - элемент, который должен быть добавлен в этот список
+     * @param e     - элемент, который должен быть добавлен в этот список
      * @param index - порядковый номер элемента, куда нужно добавить
      */
     @Override
     public void add(E e, int index) {
-
-        if (size == 0) {
-            size = SIZE_START;
-        }
-        if (index > size -1) {
-            size = index + 1;
-            resizeArray(index + 1);
+        if (size == array.length) {
+            resizeArray(index);
         }
         array[index] = e;
+        size++;
     }
 
     /**
@@ -71,7 +69,8 @@ public class MyArrayList<E extends Comparable<E>> implements MyList<E> {
     public E get(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Not index: " + index);
-        } return (E) array[index];
+        }
+        return (E) array[index];
     }
 
     /**
@@ -80,7 +79,7 @@ public class MyArrayList<E extends Comparable<E>> implements MyList<E> {
      * @param index - порядковый номер элемента, который нужно удалить
      */
     @Override
-    public void delete(int index){
+    public void delete(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Not index: " + index);
         }
@@ -95,10 +94,9 @@ public class MyArrayList<E extends Comparable<E>> implements MyList<E> {
      * Очищает весь список.
      */
     @Override
-    public void clear(){
-
-        size = SIZE_START;
-        array =  new Object[SIZE_START];
+    public void clear() {
+        size = 0;
+        array = null;
     }
 
     /**
@@ -110,8 +108,8 @@ public class MyArrayList<E extends Comparable<E>> implements MyList<E> {
         for (int i = 0; i < size - 1; i++) {
             int indexMin = i;
             for (int j = i + 1; j < size; j++) {
-                if (((E)array[j]).compareTo((E)array[indexMin]) < 0) {
-                        indexMin = j;
+                if (((E) array[j]).compareTo((E) array[indexMin]) < 0) {
+                    indexMin = j;
                 }
             }
             var temporary = array[i];
@@ -136,7 +134,7 @@ public class MyArrayList<E extends Comparable<E>> implements MyList<E> {
      * @param newLength - длина списка
      */
     private void resizeArray(int newLength) {
-        Object[] newArray = new Object[newLength + 1];
+        Object[] newArray = new Object[(3 * newLength) / 2];
         System.arraycopy(array, 0, newArray, 0, array.length);
         array = newArray;
     }
@@ -148,12 +146,12 @@ public class MyArrayList<E extends Comparable<E>> implements MyList<E> {
      */
     @Override
     public String toString() {
-
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < size -1; i++) {
-                sb.append(array[i]).append(" ");
-            }
-            sb.append(array[size -1]);
-            return "MyArrayList: [" + sb + "]";
+        StringBuilder sb = new StringBuilder("MyArrayList: [");
+        for (int i = 0; i < size - 1; i++) {
+            sb.append(array[i]).append(" ");
         }
+        sb.append(array[size - 1]);
+        sb.append("]");
+        return sb.toString();
+    }
 }
